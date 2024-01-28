@@ -27,21 +27,16 @@
  *  
 '''
 
-# import XUtils from "./XUtils.js"
-# import XParser from "./XParser.js"
 from XLogger import _xlog
 from XObjectManager import XObjectManager
 from XObject import XObject
-# import XObjectManager from "./XObjectManager.js";
-# import * as _XC from "./XConst.js"
-# import { XObjectData, XObject, XObjectPack } from "./XObject.js";
 from XCommand import XCommand
 from XLogger import _xlog
 from XUtils import _xu
 
 import json
 import uuid
-
+import asyncio
 
 # /**
 #  * Xpell Base Module
@@ -73,6 +68,8 @@ class XModule:
     def create(self,data):
         x_object = None
         if "_type" in data:
+            _xlog.log("create object of type: " + data["_type"])
+            _xlog.log(self._object_manager.get_all_classes())
             if self._object_manager.has_object_class(data["_type"]):
                 x_object_class = self._object_manager.get_object_class(data["_type"])
                 if hasattr(x_object_class, "defaults"):
@@ -90,7 +87,7 @@ class XModule:
                 new_spell = self.create(spell)
                 x_object.append(new_spell)
 
-        x_object.on_create()
+        asyncio.run(x_object.on_create())
 
         return x_object
        
@@ -198,7 +195,7 @@ class XModule:
         for key in om_objects:
             on_frame_callback = om_objects[key]
             if on_frame_callback and hasattr(on_frame_callback, 'on_frame') and callable(getattr(on_frame_callback, 'on_frame')):
-                await on_frame_callback.on_frame(frame_number)
+                await on_frame_callback.on_frame(frameNumber)
 
     
 
@@ -237,5 +234,14 @@ class XModule:
 
 
 gm = {"_name":"xmodule"}
-GenericModule = XModule(gm)
-# export default XModule
+# GenericModule = XModule(gm)
+
+class _GenericModule(XModule):
+    def __init__(self):
+        super().__init__(gm)
+        self._object_manager.register_object("xobject",XObject)
+
+    def _info(self,xCommand):
+        _xlog.log("generic module info")
+
+GenericModule = _GenericModule()

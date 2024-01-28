@@ -13,6 +13,18 @@ _x.load_module(GenericModule)
 
 _x.start()
 
+GenericModule.create({
+    "_type": "xobject",
+    "_name": "test",
+    "_children": [
+        {
+            "_type": "xobject",
+            "_name": "test2"
+        }
+    ]
+})
+
+
 
 
 

@@ -1,4 +1,4 @@
-from XLogger import XLogger
+from XLogger import _xlog
 # import XObject, { XObjectPack } from "./XObject.js";
 
 # /**
@@ -21,9 +21,9 @@ class XObjectManager:
          #Object Names index - uses to get object by name
         self._names_index = {}
         if moduleName:
-            XLogger.log("Object Manager for  " + moduleName + " loaded")
+            _xlog.log("Object Manager for  " + moduleName + " loaded")
         else:
-            XLogger.log("Object Manager loaded")
+            _xlog.log("Object Manager loaded")
         
 
 
@@ -62,6 +62,7 @@ class XObjectManager:
     #  */
     def register_object(self,name, xObjects):
         self._object_classes[name] = xObjects
+        _xlog.log("Object Manager Register " + name)
 
 
     # /**
@@ -70,7 +71,9 @@ class XObjectManager:
     #  * @returns {boolean} 
     #  */
     def has_object_class(self,name):
-        return hasattr(this._object_classes,name)
+        print("has_object_class",name,self._object_classes)
+        # return hasattr(self._object_classes,name)
+        return name in self._object_classes
     
 
     # /**
@@ -103,7 +106,7 @@ class XObjectManager:
                 xObject._name = xObject._id
             self._names_index[xObject._name] = xObject._id
         else:
-            XLogger.log("unable to add object")
+            _xlog.log("unable to add object")
 
     '''
      * Remove XObject from the manager 

@@ -39,8 +39,8 @@ class XObject:
 
 
         #real-time controllers
-        self._process_frame = true
-        self._process_data = true
+        self._process_frame = True
+        self._process_data = True
 
 
 
@@ -54,27 +54,30 @@ class XObject:
             "_instance_xporters": {}
         }
 
-        self.addNanoCommandPack(_xobject_basic_nano_commands)
 
         #add Xporter ignore field and instance handler (uses as example also)
-        self.addXporterDataIgnoreFields(["_nano_commands"]) 
+        self.add_xporter_data_ignore_fields(["_nano_commands"]) 
         # self.addXporterInstanceXporter(XObject,(objectInstance: XObject) => {
         #     return objectInstance.to_xdata()
         # })
         self.add_xporter_instance_xporter(XObject, lambda object_instance: object_instance.to_xdata())
 
         self._xem_options = {
-            _instance:_xem
+            
         }
         self.init(data,skip_parse)
         
     
 
-    def init(data,skip_parse=False):
+    def init(self,data,skip_parse=False):
         if not skip_parse and data:
-            del data._id # delete the _id field to remove duplication by the parse function
+            print(data)
+            # check if _id field exists in data, if yes delete it to prevent duplication
+            if "_id" in data:
+                del data["_id"] # delete the _id field to remove duplication by the parse function
             self.parse(data, reservedWords)
             self.parse_events(self._xem_options)
+            self.add_nano_command_pack(_xobject_basic_nano_commands)
     
     # addEventListener(eventName:string,handler:XObjectOnEventHandler,options?:XEventListenerOptions) {
 
@@ -113,7 +116,7 @@ class XObject:
     #         }
     #     })
     # }
-    def parse_events(options):
+    def parse_events(self,options):
         for event_name, event_handler in self._on.items():
             if callable(event_handler):
                 self.add_event_listener(event_name, event_handler, options)
@@ -141,9 +144,9 @@ class XObject:
     #     }
     # }
 
-    def remove_event_listener(event_name):
+    def remove_event_listener(self,event_name):
         if event_name in self._event_listeners_ids:
-            self._xem_options["_instance"].remove(self._event_listeners_ids[event_name])
+            _xem.remove(self._event_listeners_ids[event_name])
             del self._event_listeners_ids[event_name]
 
     # removeAllEventListeners() {
@@ -151,7 +154,7 @@ class XObject:
     #     keys.forEach(key => self.removeEventListener(key))
     # }
 
-    def remove_all_event_listeners():
+    def remove_all_event_listeners(self):
         keys = self._event_listeners_ids.keys()
         for key in keys:
             self.remove_event_listener(key)
@@ -166,7 +169,7 @@ class XObject:
     #     self._children?.push(xobject)
     # }
 
-    def append(xobject):
+    def append(self,xobject):
         self._children.append(xobject)
 
 
@@ -182,7 +185,7 @@ class XObject:
     #     }
     # }
 
-    def add_nano_command(command_name, nano_command_function):
+    def add_nano_command(self,command_name, nano_command_function):
         if callable(nano_command_function):
             self._nano_commands[command_name] = nano_command_function
 
@@ -200,7 +203,7 @@ class XObject:
     #     }
     # }
 
-    def add_nano_command_pack(nc_pack):
+    def add_nano_command_pack(self,nc_pack):
         if nc_pack:
             for key, value in nc_pack.items():
                 self.add_nano_command(key, value)
@@ -216,7 +219,7 @@ class XObject:
     #     self._xporter._ignore_fields = self._xporter._ignore_fields.concat(ignoreFields)
     # }
 
-    def add_xporter_data_ignore_fields(ignore_fields):
+    def add_xporter_data_ignore_fields(self,ignore_fields):
         self._xporter["_ignore_fields"].extend(ignore_fields)
 
 
@@ -232,9 +235,9 @@ class XObject:
     #     }
     # }
 
-    def add_xporter_instance_xporter(class_of_instance, handler):
+    def add_xporter_instance_xporter(self,class_of_instance, handler):
         xporter_name = XUtils.guid()
-        self._xporter._instance_xporters[xporter_name] = {
+        self._xporter["_instance_xporters"][xporter_name] = {
             'cls': class_of_instance,
             'handler': handler
         }
@@ -257,7 +260,7 @@ class XObject:
     #     self._children = []
     # }
 
-    async def dispose():
+    async def dispose(self):
         self._process_data = False
         self._process_frame = False
         self.remove_all_event_listeners()
@@ -285,7 +288,7 @@ class XObject:
     #         }
     #     });
     # }
-    def parse(data, ignore=None):
+    def parse(self,data, ignore=None):
         if ignore is None:
             ignore = reserved_words
 
@@ -316,7 +319,7 @@ class XObject:
     #     })
     # }
 
-    def parse_fields_from_xdata_object(data, fields):
+    def parse_fields_from_xdata_object(self,data, fields):
         for field, value in fields.items():
             if field in data:
                 setattr(self, field, data[field])
@@ -345,7 +348,7 @@ class XObject:
     #     })
     # }
 
-    def parse_fields(data, fields, check_non_x_params=False):
+    def parse_fields(self,data, fields, check_non_x_params=False):
         for field in fields:
             if field in data:
                 setattr(self, field, data[field])
@@ -387,7 +390,7 @@ class XObject:
     # }
 
 
-    async def on_create():
+    async def on_create(self):
         if self._on_create:
             if callable(self._on_create):
                 self._on_create(self)
@@ -427,7 +430,7 @@ class XObject:
     #     })
     # }
 
-    async def on_mount():
+    async def on_mount(self):
         if self._on_mount:
             if callable(self._on_mount):
                 self._on_mount(self)
@@ -451,7 +454,7 @@ class XObject:
     #     }
     # }
 
-    def empty_data_source():
+    def empty_data_source(self):
         if self._data_source and isinstance(self._data_source, str):
             _xd.delete(self._data_source)
 
@@ -473,7 +476,7 @@ class XObject:
     #     }
     # }
 
-    async def on_data(data):
+    async def on_data(self,data):
         if self._on_data and self._process_data:
             if callable(self._on_data):
                 self._on_data(self, data)
@@ -527,7 +530,7 @@ class XObject:
     #     })
     # }
 
-    async def on_frame(frame_number):
+    async def on_frame(self,frame_number):
         if self._on_frame and self._process_frame:
             if callable(self._on_frame):
                 await self._on_frame(self, frame_number)
@@ -566,7 +569,7 @@ class XObject:
 
     # }
 
-    async def run(nano_command, cache=True):
+    async def run(self,nano_command, cache=True):
         jcmd = self._cache_jcmd if self._cache_cmd_txt and self._cache_cmd_txt == nano_command else XParser.parse(nano_command)
         #cache command to prevent parsing in every frame
         if cache:
@@ -604,7 +607,7 @@ class XObject:
     #     }
     # }
 
-    async def execute(x_command):
+    async def execute(self,x_command):
         if x_command._op and x_command._op in self._nano_commands:
             try:
                 self._nano_commands[x_command._op](x_command, self)
@@ -666,7 +669,7 @@ class XObject:
     #     return out
     # }
 
-    def to_xdata():
+    def to_xdata(self):
         out = {}
         for field in dir(self):
             if field not in self._xporter._ignore_fields and hasattr(self, field) and getattr(self, field) is not None:
@@ -676,10 +679,10 @@ class XObject:
                     if not func_str.startswith("class"):
                         out[field] = func_str
                 elif isinstance(tf, object):
-                    xporters = self._xporter._instance_xporters.keys()
+                    xporters = self._xporter["_instance_xporters"].keys()
                     reg_field = True
                     for xporter in xporters:
-                        xp = self._xporter._instance_xporters[xporter]
+                        xp = self._xporter["_instance_xporters"][xporter]
                         if isinstance(tf, xp["cls"]):
                             out[field] = xp["handler"](tf)
                             reg_field = False
@@ -710,6 +713,6 @@ class XObject:
     #     return JSON.stringify(this.to_xdata())
     # }
 
-    def __str__():
+    def __str__(self):
         return json.dumps(self.to_xdata())
 
