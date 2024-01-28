@@ -68,8 +68,8 @@ class XModule:
     def create(self,data):
         x_object = None
         if "_type" in data:
-            _xlog.log("create object of type: " + data["_type"])
-            _xlog.log(self._object_manager.get_all_classes())
+            # _xlog.log("create object of type: " + data["_type"])
+            # _xlog.log(self._object_manager.get_all_classes())
             if self._object_manager.has_object_class(data["_type"]):
                 x_object_class = self._object_manager.get_object_class(data["_type"])
                 if hasattr(x_object_class, "defaults"):

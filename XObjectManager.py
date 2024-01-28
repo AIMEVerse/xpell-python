@@ -71,7 +71,7 @@ class XObjectManager:
     #  * @returns {boolean} 
     #  */
     def has_object_class(self,name):
-        print("has_object_class",name,self._object_classes)
+        # print("has_object_class",name,self._object_classes)
         # return hasattr(self._object_classes,name)
         return name in self._object_classes
     

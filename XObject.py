@@ -71,7 +71,7 @@ class XObject:
 
     def init(self,data,skip_parse=False):
         if not skip_parse and data:
-            print(data)
+            # print(data)
             # check if _id field exists in data, if yes delete it to prevent duplication
             if "_id" in data:
                 del data["_id"] # delete the _id field to remove duplication by the parse function

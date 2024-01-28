@@ -25,7 +25,7 @@ class _XpellEngine:
 
         self._interval = None
         self._xlog_enabled = False
-        _xlog.log("Xpell Engine initialized.")
+        _xlog.log("Xpell Engine for Python has been initialized.")
         asyncio.run(_xem.fire("xpell-init"))
 
     # Enable Xpell logs to console
