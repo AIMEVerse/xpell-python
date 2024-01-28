@@ -1,4 +1,4 @@
-# Xpell-Node - Real-Time Interpreter for Node.js and Web Applications
+# Xpell-Node - Real-Time Interpreter for Python
 
 
 Xpell-Node is a real-time interpreter for Node.js application development, such application requires control on several modules  and AI engine to run within high FPS.
