@@ -113,3 +113,9 @@ public/
 .DS_Store
 package-lock.json
 
+
+# python
+*.pyc
+*.pyo
+__pycache__/
+
