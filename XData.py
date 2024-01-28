@@ -19,13 +19,6 @@
 
 class _XData:
 
-
-    # __objects: XDataObject = {}
-
-    # constructor(){
-    #     this.__objects = {}
-    # }
-
     def __init__(self):
         self.__objects = {}
 
