@@ -1,204 +1,93 @@
-/**
- * Xpell - Real-Time User Interface Platform
- * Typescript Edition   
- *      
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version
- * 3 of the License, or (at your option) any later version.
- *
- *
- */
+import threading
+import time
+import uuid
+import asyncio
+#Xpell imports
+from XLogger import _xlog
+from XEventManager import _xem
+from XUtils import _xu
 
-
-
-/** interface */
-import {XCommand, XCommandData } from "./XCommand.js"
-import {XUtils,FPSCalc} from "./XUtils.js"
-import {XLogger as _xlog} from "./XLogger.js"
-import XData from "./XData.js"
-import XParser from "./XParser.js"
-import XModule from "./XModule.js"
-import {XEventManager as XEM} from  "./XEventManager.js"
-
-
-
-
-
-
-
-
-// class XpellMainModule extends XModule {
-
-    
-
-//     constructor(data) {
-//         const defaults = {name:"xpell"}
-//         super(data,defaults)
-//     }
-
-//     _info(xcmd:XCommand) {
-//         _xlog.log("Xpell Engine V:" + Xpell.version)
-//     }
-
-//     _loadModule(xcmd:XCommand) {
-//         _xlog.log(xcmd.params["name"])
-//     }
-// }
-
-/**
- * @class  Xpell main engine
- */
-class XpellEngine {
-    _version : string
-    _engine_id: string
-    _frame_number: number
-    #fps_calc: FPSCalc
-    _fps: number = 1
-    _modules:{[name:string]:any} = {}
-    parser: typeof XParser
-    private _interval: NodeJS.Timeout | undefined
-   
-   // constructor
-
+# export class
+# @class Xpell main engine
+class _XpellEngine:
     def __init__(self):
+        self._version = "0.0.1"
+        self._fire_on_frame_event = False
+        self._engine_id = _xu.guid()
+        self._frame_number = 0
+        self._fps = 1 
+        # self.parser = XParser # implement XParser
+        self._modules = {}
+        self._running = False
+        # XEM.fire("xpell-init")
+        # _xlog.enabled = False
 
-    constructor() {
-        this._version = "0.0.1"
-        this._engine_id = XUtils.guid()
-        this._frame_number = 0
-        #this.#fps_calc = new FPSCalc()
-        this.parser = XParser
-        this._modules = {}
-        XEM.fire("xpell-init")
-        _xlog.enabled = false
-        //this.load()
-    }
+        self._interval = None
+        self._xlog_enabled = False
+        _xlog.log("Xpell Engine initialized.")
+        asyncio.run(_xem.fire("xpell-init"))
 
+    # Enable Xpell logs to console
+    def verbose(self):
+        self._xlog_enabled = True
 
-    /**
-     * Enable Xpell logs to console
-     */
-    verbose(){
-        _xlog.enabled=true
-    }
-   
-
-    /**
-     * Loads Xpell module into the engine
-     * @param {XModule} xModule 
-     */
-    loadModule(xModule:XModule):void {
-        if (this.#_modules.hasOwnProperty(xModule._name)) {
-            _xlog.log("Module " + xModule._name + " already loaded")
-        } else {
-            this.#_modules[<any>xModule._name] = xModule;
+    # loads xpell module into engine
+        # @param {XModule} xModule
+    def load_module(self, xModule):
+        if self._modules.get(xModule._name):
+            _xlog.log("Module " + xModule._name + " already loaded.")
+        else:
+            _xlog.log("Loading module " + xModule._name)
+            self._modules[xModule._name] = xModule
             xModule.load()
-        }
-    }
 
-    /**
-     * Loads multiple module at ones
-     * @param {Array<XModule>} xModulesArray 
-     */
-    loadModules(xModulesArray:Array<XModule>):void {
-        const sthis = this //strong this
-        xModulesArray.forEach(mod => sthis.loadModule(mod))
-    }
+    # loads xpell modules into engine
+        # @param {XModule[]} xModules
+    # def load_modules(self, xModules):
+    #     sself = self
+    #     for index, xModule in enumerate(xModules):
+    #         sself.load_module(xModule)
 
-
-    /**
-     * Display information about the Xpell engine to the console
-     */
-    info(){
-        _xlog.log("Xpell information:\n- Engine Id: "  + this._engine_id + "\n- Version " + this._version)   
-    }
-
-
-     /**
-     * Run textual xCommand -
-     * @param {cmd} - text command
-     */
-
-    run(stringXCommand:string) {
-        if(stringXCommand?.length>2) {
-            let scmd = XParser.parse(stringXCommand)
-            return this.execute(scmd)
-        } else {
-            throw "Unable to parse Xpell command"
-        }
-    }
-
-    /**
-     * Execute Xpell Command 
-     * @param {XCommand} 
-     */
-    execute(xcmd:XCommand | XCommandData):any {
-        if(xcmd && xcmd._module && this.#_modules[xcmd._module]) {
-            return this.#_modules[xcmd._module].execute(xcmd)
-        } else {
-            throw "Xpell module " + xcmd._module + " not loaded"
-        }
-    }
-
-
-
-    /**
-     * Main onFrame method
-     * calls all the sub-modules onFrame methods (if implemented)
-     */
-     async onFrame():Promise<void> {     
-        this._frame_number++
-        Object.keys(this.#_modules).forEach(mod => {
-            if(this.#_modules[mod].onFrame && typeof this.#_modules[mod].onFrame === 'function') {
-                this.#_modules[mod].onFrame(this._frame_number)
-            }
-        })
-        XData._o["frame-number"] = this._frame_number
-        XData._o["fps"] = this.#fps_calc.calc()
-        // _xlog.log("Frame: " + this._frame_number + " FPS: " + XData._o["fps"])
-
-
-        
-
-
-    }
-
-
-    /**
-     * Gets Xpell module by name
-     * @param {string} moduleName - name of the loaded module
-     * @returns {XModule}
-     */
-    getModule(moduleName:string):XModule{
-        return this.#_modules[moduleName]
-    }
-
-    /**
-     * Start Xpell engine for web browsers using setInterval
-     */
-    start() {
-        _xlog.log("Starting Xpell")
-        this._interval = setInterval(()=>{Xpell.onFrame()},1000/this._fps)
-    }
-
-    /**
-     * Stop Xpell engine
-     */
-    stop() {
-        clearInterval(this._interval)
-    }
-
+    # display information about the xpell engine to the console
+    def info(self):
+        _xlog.log("Xpell Information: \n- Engine ID: " + self._engine_id + "\n- Version: " + self._version)
     
+    def start(self):
+        _xlog.log("Starting Xpell")
+        self._running = True
+        self.on_frame()
+    
+    def stop(self): 
+        _xlog.log("Stopping Xpell")
+        self._running = False
+        
+    #run textual xCommand
+        # @param {cmd} - text command
 
-}
-
-/**
- * Xpell Engine instance
- * @public Xpell Engine instance
- */
-export const Xpell = new XpellEngine()
-
-export default Xpell
+    # def run(self, stringXCommand):
+    #     if (stringXCommand.length > 2):
+    #         scmd = XParser.parse(stringXCommand)
+    #         return self.execute(scmd)
+    #     else:
+    #         raise Exception("Unable to parse Xpell command.")
 
 
+    # Main on_frame method
+    # class all tge sub-modules on_frame methods (if implemented)
+    def on_frame(self):
+        self._frame_number += 1
+        # _xlog.log("Frame: " + str(self._frame_number))
+        if self._fire_on_frame_event:
+            asyncio.run(_xem.fire("xpell-frame", self._frame_number))
+        for key, xModule in self._modules.items():
+            if hasattr(xModule, "on_frame") and callable(getattr(xModule, "on_frame")):
+                asyncio.run(xModule.on_frame(self._frame_number))
+
+        if self._running:
+            interval_timer = threading.Timer(self._fps, self.on_frame)
+            interval_timer.start()
+        
+        # XData._o["frame-number"] = self._frame_number
+
+Xpell = _XpellEngine()
+_x = Xpell
