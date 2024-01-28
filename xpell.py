@@ -6,6 +6,7 @@ import asyncio
 from XLogger import _xlog
 from XEventManager import _xem
 from XUtils import _xu
+from XParser import XParser
 
 # export class
 # @class Xpell main engine
@@ -16,7 +17,7 @@ class _XpellEngine:
         self._engine_id = _xu.guid()
         self._frame_number = 0
         self._fps = 1 
-        # self.parser = XParser # implement XParser
+        self.parser = XParser 
         self._modules = {}
         self._running = False
         # XEM.fire("xpell-init")
@@ -64,12 +65,12 @@ class _XpellEngine:
     #run textual xCommand
         # @param {cmd} - text command
 
-    # def run(self, stringXCommand):
-    #     if (stringXCommand.length > 2):
-    #         scmd = XParser.parse(stringXCommand)
-    #         return self.execute(scmd)
-    #     else:
-    #         raise Exception("Unable to parse Xpell command.")
+    def run(self, stringXCommand):
+        if (stringXCommand.length > 2):
+            scmd = XParser.parse(stringXCommand)
+            return self.execute(scmd)
+        else:
+            raise Exception("Unable to parse Xpell command.")
 
 
     # Main on_frame method
