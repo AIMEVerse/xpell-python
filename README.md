@@ -27,7 +27,8 @@ The way to communicate with Xpell engine is to send XCommand that will be analyz
  ---
 
  Author: Fridman Fridman <fridman.tamir@gmail.com>
-
+         Kylie Koshet
+         
  License:  GPL-3 
 
  First Release: 28/01/2024
