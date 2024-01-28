@@ -20,7 +20,7 @@
 class _XData:
 
 
-    __objects: XDataObject = {}
+    # __objects: XDataObject = {}
 
     # constructor(){
     #     this.__objects = {}

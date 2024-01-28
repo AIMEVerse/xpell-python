@@ -42,7 +42,7 @@ class XObjectManager:
     #  * @param xObjectId 
     #  * @returns 
     #  */
-    def hasObject(self,xObjectId):
+    def has_object(self,xObjectId):
         return hasattr(self._xobjects,xObjectId)
     
 
@@ -50,11 +50,9 @@ class XObjectManager:
     #  * Register multiple classes dictionary into the object manager
     #  * @param xObjects - key value list -> \{"view":XView,...\}
     #  */
-    def registerObjects(self,xObjects):
-        # names = Object.keys(xObjects)
-        # names.forEach(name => this.registerObject(name, xObjects[name]))
+    def register_objects(self,xObjects):
         for name in xObjects:
-            self.registerObject(name, xObjects[name])
+            self.register_object(name, xObjects[name])
     
 
     # /**
@@ -62,7 +60,7 @@ class XObjectManager:
     #  * @param name - name of the object
     #  * @param xObjects The object class
     #  */
-    def registerObject(self,name, xObjects):
+    def register_object(self,name, xObjects):
         self._object_classes[name] = xObjects
 
 
@@ -71,7 +69,7 @@ class XObjectManager:
     #  * @param name - class name
     #  * @returns {boolean} 
     #  */
-    def hasObjectClass(self,name):
+    def has_object_class(self,name):
         return hasattr(this._object_classes,name)
     
 
@@ -80,7 +78,7 @@ class XObjectManager:
     #  * @param name class name
     #  * @returns {XObject}
     #  */
-    def getObjectClass(self,name):
+    def get_object_class(self,name):
         return self._object_classes[name]
     
 
@@ -88,7 +86,7 @@ class XObjectManager:
     #  * Retrieves all the classes dictionary
     #  * @returns XObjectManagerIndex
     #  */
-    def getAllClasses(self):
+    def get_all_classes(self):
         return self._object_classes
     
 
@@ -98,7 +96,7 @@ class XObjectManager:
     #  * Add XObject instance to the manager
     #  * @param xObject XObject to maintain
     #  */
-    def addObject(self,xObject):
+    def add_object(self,xObject):
         if xObject and xObject._id:
             self._xobjects[xObject._id] = xObject
             if not xObject._name or len(xObject._name)==0:
@@ -111,7 +109,7 @@ class XObjectManager:
      * Remove XObject from the manager 
      * @param xObjectId object id to remove
      '''
-    def removeObject(self,xObjectId):
+    def remove_object(self,xObjectId):
         obj = self._xobjects[xObjectId]
         if obj:
             del self._names_index[obj.name] 
@@ -124,17 +122,17 @@ class XObjectManager:
      * @param xObjectId XObject id 
      * @returns {XObject}
     '''
-    def getObject(self,xObjectId):
+    def get_object(self,xObjectId):
         return self._xobjects[xObjectId]
     
 
     '''
-     * alias to getObject
+     * alias to get_object
      * @param id 
      * @returns 
      '''
     def go(self,id):
-        return self.getObject(id)
+        return self.get_object(id)
     
     
 
@@ -143,9 +141,9 @@ class XObjectManager:
      * @param objectName XObject name 
      * @returns {XObject}
     '''
-    def getObjectByName(self,objectName):
+    def get_object_by_name(self,objectName):
         if self._names_index[objectName]:
-            return self.getObject(self._names_index[objectName])
+            return self.get_object(self._names_index[objectName])
         else: 
             return null
     

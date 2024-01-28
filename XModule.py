@@ -31,10 +31,14 @@
 # import XParser from "./XParser.js"
 from XLogger import _xlog
 from XObjectManager import XObjectManager
+from XObject import XObject
 # import XObjectManager from "./XObjectManager.js";
 # import * as _XC from "./XConst.js"
 # import { XObjectData, XObject, XObjectPack } from "./XObject.js";
 from XCommand import XCommand
+from XLogger import _xlog
+from XUtils import _xu
+
 import json
 import uuid
 
@@ -51,7 +55,7 @@ class XModule:
     # data - json object of XModuleData
     def __init__(self,data):
         self._name = data["_name"]
-        self._id =  str(uuid.uuid4())
+        self._id =  _xu.guid()
         self._object_manager = XObjectManager(self._name)
         
 
@@ -67,52 +71,29 @@ class XModule:
      * @return {XObject|*}
     '''
     def create(self,data):
-        xObject = None
-        # if "_type" in data:
-        #     if self._object_manager.has_object_class(data["_type"]):
-        #         x_object_class = self._object_manager.get_object_class(data["_type"])
-        #         if hasattr(x_object_class, "defaults"):
-        #             XUtils.merge_defaults_with_data(data, x_object_class.defaults)
-        #         x_object = x_object_class(data)
-        #     else:
-        #         raise Exception("Xpell object '" + data["_type"] + "' not found")
-        # else:
-        #     x_object = XObject(data)
+        x_object = None
+        if "_type" in data:
+            if self._object_manager.has_object_class(data["_type"]):
+                x_object_class = self._object_manager.get_object_class(data["_type"])
+                if hasattr(x_object_class, "defaults"):
+                    XUtils.merge_defaults_with_data(data, x_object_class.defaults)
+                x_object = x_object_class(data)
+            else:
+                raise Exception("Xpell object '" + data["_type"] + "' not found")
+        else:
+            x_object = XObject(data)
 
-        # self._object_manager.add_object(x_object)
+        self._object_manager.add_object(x_object)
 
-        # if "_children" in data:
-        #     for spell in data["_children"]:
-        #         new_spell = self.create(spell)
-        #         x_object.append(new_spell)
+        if "_children" in data:
+            for spell in data["_children"]:
+                new_spell = self.create(spell)
+                x_object.append(new_spell)
 
-        # x_object.on_create()
+        x_object.on_create()
 
-        return xObject
-        # if (data.hasOwnProperty("_type")) {
-        #     if (this._object_manger.hasObjectClass(<string>data["_type"])) {
-        #         let xObjectClass = this._object_manger.getObjectClass(<string>data["_type"]);
-        #         if (xObjectClass.hasOwnProperty("defaults")) {
-        #             XUtils.merge_defaults_with_data(data, xObjectClass.defaults);
-        #         }
-        #         xObject = new xObjectClass(data);
-        #     }
-        #     else {
-        #         throw "Xpell object '" + data["_type"] + "' not found";
-        #     }
-        # }
-        # else {
-        #     xObject = new XObject(data);
-        # }
-
-        # this._object_manger.addObject(xObject)
-        # if (data._children) {
-        #     data._children.forEach(async (spell) => {
-        #         let new_spell = this.create(<any>spell);
-        #         xObject.append(new_spell)
-        #     });
-        # }
-        # xObject.onCreate()
+        return x_object
+       
     
 
     # /**
@@ -120,12 +101,12 @@ class XModule:
     #  * @param objectId op
     #  */
     def remove(self,objectId):
-        obj = self._object_manger.getObject(objectId)
+        obj = self._object_manger.get_object(objectId)
         if (obj):
-            self._object_manger.removeObject(objectId)
-            # if(obj["dispose"] && typeof obj.dispose === "function") {
-            #     (<XObject>obj).dispose()
-            # }
+            self._object_manger.remove_object(objectId)
+            if hasattr(obj, "dispose") and callable(getattr(obj, "dispose")):
+                obj.dispose()
+
         
     
 
@@ -165,7 +146,7 @@ class XModule:
     #  * @returns command execution result
     #  */
     async def execute(self,xCommand):
-        _xlog.log("execute command: " + json.dumps(xCommand))
+        # _xlog.log("execute command: " + json.dumps(xCommand))
 
 
         # //search for xpell wrapping functions (starts with _ "underscore" example -> _start() , async _spell_async_func() )
@@ -177,7 +158,7 @@ class XModule:
         # else if (this._object_manger) //direct xpell injection to specific module
         # {
 
-        #     const o = this._object_manger.getObjectByName(xCommand._op)
+        #     const o = this._object_manger.get_object_by_name(xCommand._op)
         #     if (o) { o.execute(xCommand) }
         #     else { throw "Xpell Module cant find op:" + xCommand._op }
         # }
@@ -185,6 +166,23 @@ class XModule:
         #     throw "Xpell Module cant find op:" + xCommand._op
         # }
         # }
+
+        # //search for xpell wrapping functions (starts with _ "underscore" example -> _start() , async _spell_async_func() )
+        if xCommand._op:
+            lop = "_" + xCommand._op.replace('-', '_')
+            if hasattr(self, lop) and callable(getattr(self, lop)):
+                return await getattr(self, lop)(xCommand)
+            elif self._object_manager:
+                o = self._object_manager.get_object_by_name(xCommand._op)
+                if o:
+                    o.execute(xCommand)
+                else:
+                    raise Exception("Xpell Module cant find op:" + xCommand._op)
+            else:
+                raise Exception("Xpell Module cant find op:" + xCommand._op)
+        else:
+            raise Exception("Xpell Module cant find op:" + xCommand._op)
+
         
 
 
@@ -211,36 +209,30 @@ class XModule:
      * @param objectId 
      * @returns XObject
     '''
-    def getObject(objectId):
-        return self._object_manger.getObject(objectId)
+    def get_object(objectId):
+        return self._object_manger.get_object(objectId)
     
 
     '''
      * Imports external object pack to the engine
-     * The object class should be like XObjects with static implementation of getObjects() method
+     * The object class should be like XObjects with static implementation of get_object() method
      * @param {XObjects} xObjectPack 
     '''
-    def importObjectPack(xObjectPack):
-        self._object_manger.registerObjects(xObjectPack.getObjects())
+    def import_object_pack(xObjectPack):
+        self._object_manger.register_objects(xObjectPack.get_objects())
     
 
-    '''
-     * Imports external object pack to the engine
-     * @deprecated - use importObjectPack instead
-     * @param xObjectPack 
-    '''
-    def importObjects(xObjectPack):
-        self.importObjectPack(xObjectPack)
+    
     
 
     '''
      * Imports external objects to the engine
-     * The object class should be like XObjects with static implementation of getObjects() method
+     * The object class should be like XObjects with static implementation of get_objects() method
      * @param xObjectName 
      * @param xObject 
     '''
-    def importObject(xObjectName, xObject):
-         self._object_manger.registerObject(xObjectName, xObject)
+    def import_object(xObjectName, xObject):
+         self._object_manger.register_objects(xObjectName, xObject)
     
 
 

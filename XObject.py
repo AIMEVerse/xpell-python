@@ -1,6 +1,6 @@
 
 from XUtils import XUtils
-from XNanoCommands import XNanoCommandPack, XNanoCommand, _xobject_basic_nano_commands
+from XNanoCommands import  _xobject_basic_nano_commands
 from XEventManager import _xem
 from XData import _xd
 
@@ -70,7 +70,7 @@ class XObject:
         
     
 
-    def init(data,skip_parse:boolean):
+    def init(data,skip_parse=False):
         if not skip_parse and data:
             del data._id # delete the _id field to remove duplication by the parse function
             self.parse(data, reservedWords)
