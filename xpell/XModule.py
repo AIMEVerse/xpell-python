@@ -27,12 +27,12 @@
  *  
 '''
 
-from XLogger import _xlog
-from XObjectManager import XObjectManager
-from XObject import XObject
-from XCommand import XCommand
-from XLogger import _xlog
-from XUtils import _xu
+from .XLogger import _xlog
+from .XObjectManager import XObjectManager
+from .XObject import XObject
+from .XCommand import XCommand
+from .XLogger import _xlog
+from .XUtils import _xu
 
 import json
 import uuid

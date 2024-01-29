@@ -1,4 +1,4 @@
-from XLogger import _xlog
+from .XLogger import _xlog
 # import XObject, { XObjectPack } from "./XObject.js";
 
 # /**

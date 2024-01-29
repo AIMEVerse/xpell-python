@@ -3,10 +3,10 @@ import time
 import uuid
 import asyncio
 #Xpell imports
-from XLogger import _xlog
-from XEventManager import _xem
-from XUtils import _xu
-from XParser import XParser
+from .XLogger import _xlog
+from .XEventManager import _xem
+from .XUtils import _xu
+from .XParser import XParser
 
 # export class
 # @class Xpell main engine

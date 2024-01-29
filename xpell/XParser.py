@@ -1,6 +1,6 @@
 
 #import XCommand from "./XCommand.js"
-from XCommand import XCommand
+from .XCommand import XCommand
 '''
  * Xpell Parser - Parse XML, HTML, Raw Text & Json to Xpell Command
 '''

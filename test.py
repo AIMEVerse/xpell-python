@@ -1,8 +1,9 @@
-from XLogger import _xlog, _XLogger
-from Xpell import _x
-from XModule import GenericModule
-from XEventManager import _xem
-from Wormhole import Wormholes, WormholeEvents  
+from xpell import _x,_xlog,_xem,GenericModule,Wormholes,WormholeEvents
+# from XLogger import _xlog, _XLogger
+# from Xpell import _x
+# from XModule import GenericModule
+# from XEventManager import _xem
+# from Wormhole import Wormholes, WormholeEvents  
 import asyncio
 
 print("Xpell test")

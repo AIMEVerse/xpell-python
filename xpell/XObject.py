@@ -1,8 +1,8 @@
 
-from XUtils import XUtils
-from XNanoCommands import  _xobject_basic_nano_commands
-from XEventManager import _xem
-from XData import _xd
+from .XUtils import XUtils
+from .XNanoCommands import  _xobject_basic_nano_commands
+from .XEventManager import _xem
+from .XData import _xd
 
 reservedWords = { "_children": "child nodes" }
 

@@ -1,0 +1,6 @@
+# requirements.txt
+
+uuid
+threading
+asyncio
+websocket-client

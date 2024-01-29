@@ -13,8 +13,8 @@
  *      //fire (trigger) event name "my-event" and simple object as data
  *      _xem.fire("my-event",{_data_param:"my data"})
 '''
-from XLogger import _xlog 
-from XUtils import _xu
+from .XLogger import _xlog 
+from .XUtils import _xu
 
 
 

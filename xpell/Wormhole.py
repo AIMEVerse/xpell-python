@@ -1,10 +1,10 @@
 
 
 import json
-import threading
 import uuid
+import threading
 import websocket
-from XUtils import _xu
+from .XUtils import _xu
 
 class MessageType:
     TEXT = 'Text'
