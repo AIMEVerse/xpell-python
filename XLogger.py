@@ -59,12 +59,29 @@ class _XLogger:
     #         console.debug.apply(console, args);
     #     }
     # }
+            
+            
+    # def debug(self, message=None, *optional_params):
+    #     if self._debug:
+    #         args = [self.get_log_date_time_signature()]
+    #         if message is not None:
+    #             args.append(message)
+    #         args.extend(optional_params)
+    #         print(*args)
 
-    # /**
-    #  * Log an error message to the output log (console)
-    #  * @param message - message to present
-    #  * @param optionalParams 
-    #  */
+    '''	
+      Log an error message to the output log (console)
+      @param message - message to present
+      @param optionalParams 
+    '''	
+
+    # def error(self, message=None, *optional_params):
+    #     args = [self.get_log_date_time_signature()]
+    #     if message is not None:
+    #         args.append(message)
+    #     args.extend(optional_params)
+    #     print(*args)
+        
     # error(message?: any, ...optionalParams: any[]) {
     #     var args = Array.prototype.slice.call(arguments);
     #     args.unshift(this.get_log_date_time_signature());

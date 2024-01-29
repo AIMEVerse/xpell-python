@@ -56,7 +56,8 @@ class _XpellEngine:
     def start(self):
         _xlog.log("Starting Xpell")
         self._running = True
-        self.on_frame()
+        # self.on_frame()
+        threading.Thread(target=self.__run_loop).start()
     
     def stop(self): 
         _xlog.log("Stopping Xpell")
@@ -71,11 +72,17 @@ class _XpellEngine:
             return self.execute(scmd)
         else:
             raise Exception("Unable to parse Xpell command.")
+        
+    def __run_loop(self):
+        while self._running:
+            self.on_frame()
+            time.sleep(self._fps)
 
 
     # Main on_frame method
     # class all tge sub-modules on_frame methods (if implemented)
     def on_frame(self):
+
         self._frame_number += 1
         # _xlog.log("Frame: " + str(self._frame_number))
         if self._fire_on_frame_event:
@@ -84,9 +91,19 @@ class _XpellEngine:
             if hasattr(xModule, "on_frame") and callable(getattr(xModule, "on_frame")):
                 asyncio.run(xModule.on_frame(self._frame_number))
 
-        if self._running:
-            interval_timer = threading.Timer(self._fps, self.on_frame)
-            interval_timer.start()
+        # if self._running:
+            # interval_timer = threading.Timer(self._fps, self.on_frame)
+            # line 89 is under
+            # interval_timer.start()
+                
+        # def set_interval(func, sec):
+        #     def func_wrapper():
+        #         set_interval(func, sec)
+        #         func()
+
+        #     t = threading.Timer(sec, func_wrapper)
+        #     t.start()
+        #     return t
         
         # XData._o["frame-number"] = self._frame_number
 
