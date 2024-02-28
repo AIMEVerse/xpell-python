@@ -2,4 +2,4 @@
 
 uuid
 asyncio
-websocket-client
+websockets

@@ -1,9 +1,4 @@
-from xpell import _x,_xlog,_xem,GenericModule,Wormholes,WormholeEvents
-# from XLogger import _xlog, _XLogger
-# from Xpell import _x
-# from XModule import GenericModule
-# from XEventManager import _xem
-# from Wormhole import Wormholes, WormholeEvents  
+from xpell import _x, _xlog, _xem, GenericModule, Wormholes, WormholeEvents
 import asyncio
 
 print("Xpell test")
@@ -11,23 +6,7 @@ print("Xpell test")
 _x.info()
 _x.load_module(GenericModule)
 
-# _x._fire_on_frame_event = True
-# _xem.once("xpell-frame", lambda data: print(data))
-# _xem.on("xpell-frame", lambda data: print(data))
-
 _x.start()
-
-GenericModule.create({
-    "_type": "xobject",
-    "_name": "test",
-    "_children": [
-        {
-            "_type": "xobject",
-            "_name": "test2"
-        }
-    ]
-})
-   
 
 
 def on_wormhole_open(data):
@@ -40,20 +19,27 @@ def on_wormhole_open(data):
     res = Wormholes.send_sync(get_environment_name_message)
     print(res)
 
-def main():
+async def main():
     print("starting")
 
     wormhole_url = "ws://127.0.0.1:3030/"
 
-
     Wormholes.on_open = lambda: on_wormhole_open()
 
-    Wormholes.open(wormhole_url)
+    loop = asyncio.get_event_loop()
+
+    # Create a task for running the Wormholes WebSocket client
+    task = loop.create_task(Wormholes.open(wormhole_url))
+
+    try:
+        # Wait for the task to complete
+        await task
+    except Exception as err:
+        print("Test error :{\n", err)
+
 
 if __name__ == "__main__":
-    try:
-        main()
-        print("done")
-    except Exception as err:
-        print(err)
-        
+    asyncio.run(main())
+    # try:
+    # except Exception as err:
+    #     print("Test error :{\n", err)
